@@ -1,16 +1,18 @@
 package org.kondrak.batch.model;
 
 import lombok.Data;
+import org.springframework.stereotype.Repository;
 
 /**
  * Created by Administrator on 1/22/2016.
  */
 @Data
+@Repository
 public class Record {
     private Long jobNumber;
     private Integer docNumber;
     private String borough;
-    private Long houseNumber;
+    private String houseNumber;
     private String streetName;
     private Long block;
     private Long lot;
@@ -18,7 +20,7 @@ public class Record {
     private String jobType;
     private String jobStatus;
     private String jobStatusDescription;
-    private String latestActionString;
+    private String latestActionDt;
     private String buildingType;
     private Long communityBoard;
     private String cluster;
@@ -47,19 +49,19 @@ public class Record {
     private String applicantProfessionalTitle;
     private Long applicantLicenseNumber;
     private String professionalCert;
-    private String preFilingString;
-    private String paidString;
-    private String fullyPaidString;
-    private String assignedString;
-    private String approvedString;
-    private String fullyPermittedString;
+    private String preFilingDt;
+    private String paidDt;
+    private String fullyPaidDt;
+    private String assignedDt;
+    private String approvedDt;
+    private String fullyPermittedDt;
     private String initialCost;
     private String totalEstimatedFee;
     private String feeStatus;
     private Long existingSquareFootage;
     private Long proposedSquareFootage;
-    private Long horizontalEnlargement;
-    private Long verticalEnlargement;
+    private String horizontalEnlargement;
+    private String verticalEnlargement;
     private Long enlargementSquareFootage;
     private Long streetFrontage;
     private Long existingStories;
@@ -84,9 +86,9 @@ public class Record {
     private String ownerHouseNumber;
     private String ownerHouseStreetName;
     private String city;
-    private String state;
+    private String resSt;
     private String zip;
     private Long ownerPhone;
     private String jobDescription;
-    private String dobRunString;
+    private String dobRunDt;
 }

@@ -38,12 +38,13 @@ import javax.sql.DataSource;
 public class BatchConfig {
 
     @Bean public ItemReader<Record> reader() {
+        System.out.println("*** Reading");
         FlatFileItemReader<Record> reader = new FlatFileItemReader<>();
-        reader.setResource(new FileSystemResource("DOB_Job_Application_Filings.csv"));
+        reader.setResource(new FileSystemResource("DOB_Job_Application_Filings(subset).csv"));
         reader.setLinesToSkip(1);
         reader.setLineMapper(new DefaultLineMapper<Record>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
-//                setDelimiter(",");
+                setDelimiter(",");
                 setNames(new String[] {
                         "jobNumber" ,
                         "docNumber" ,
@@ -56,7 +57,7 @@ public class BatchConfig {
                         "jobType" ,
                         "jobStatus" ,
                         "jobStatusDescription" ,
-                        "latestActionDate" ,
+                        "latestActionDt" ,
                         "buildingType" ,
                         "communityBoard" ,
                         "cluster" ,
@@ -85,12 +86,12 @@ public class BatchConfig {
                         "applicantProfessionalTitle" ,
                         "applicantLicenseNumber" ,
                         "professionalCert" ,
-                        "preFilingDate" ,
-                        "paidDate" ,
-                        "fullyPaidDate" ,
-                        "assignedDate" ,
-                        "approvedDate" ,
-                        "fullyPermittedDate" ,
+                        "preFilingDt" ,
+                        "paidDt" ,
+                        "fullyPaidDt" ,
+                        "assignedDt" ,
+                        "approvedDt" ,
+                        "fullyPermittedDt" ,
                         "initialCost" ,
                         "totalEstimatedFee" ,
                         "feeStatus" ,
@@ -122,7 +123,7 @@ public class BatchConfig {
                         "ownerHouseNumber" ,
                         "ownerHouseStreetName" ,
                         "city" ,
-                        "state" ,
+                        "resSt" ,
                         "zip" ,
                         "ownerPhone" ,
                         "jobDescription" ,
@@ -137,9 +138,9 @@ public class BatchConfig {
         return reader;
     }
 
-//    @Bean public ItemProcessor processor() {
-//        return null;
-//    }
+    @Bean public ItemProcessor<Record, Record> processor(Record r) {
+        return new LoggingProcessor();
+    }
 
     @Bean public ItemWriter<Record> writer(DataSource dataSource) {
         JdbcBatchItemWriter<Record> writer = new JdbcBatchItemWriter<>();
@@ -156,7 +157,7 @@ public class BatchConfig {
                         "jobType," +
                         "jobStatus," +
                         "jobStatusDescription," +
-                        "latestActionDate," +
+                        "latestActionDt," +
                         "buildingType," +
                         "communityBoard," +
                         "cluster," +
@@ -171,7 +172,7 @@ public class BatchConfig {
                         "mechanical," +
                         "boiler," +
                         "fuelBurning," +
-                        "fuelStorage" +
+                        "fuelStorage," +
                         "standpipe," +
                         "sprinkler," +
                         "fireAlarm," +
@@ -185,12 +186,12 @@ public class BatchConfig {
                         "applicantProfessionalTitle," +
                         "applicantLicenseNumber," +
                         "professionalCert," +
-                        "preFilingDate," +
-                        "paidDate," +
-                        "fullyPaidDate," +
-                        "assignedDate," +
-                        "approvedDate," +
-                        "fullyPermittedDate," +
+                        "preFilingDt," +
+                        "paidDt," +
+                        "fullyPaidDt," +
+                        "assignedDt," +
+                        "approvedDt," +
+                        "fullyPermittedDt," +
                         "initialCost," +
                         "totalEstimatedFee," +
                         "feeStatus," +
@@ -222,11 +223,11 @@ public class BatchConfig {
                         "ownerHouseNumber," +
                         "ownerHouseStreetName," +
                         "city," +
-                        "state," +
+                        "resSt," +
                         "zip," +
                         "ownerPhone," +
                         "jobDescription," +
-                        "dobRunDate," +
+                        "dobRunDt" +
                 ") VALUES (" +
                         ":jobNumber," +
                         ":docNumber," +
@@ -239,7 +240,7 @@ public class BatchConfig {
                         ":jobType," +
                         ":jobStatus," +
                         ":jobStatusDescription," +
-                        ":latestActionDate," +
+                        ":latestActionDt," +
                         ":buildingType," +
                         ":communityBoard," +
                         ":cluster," +
@@ -254,7 +255,7 @@ public class BatchConfig {
                         ":mechanical," +
                         ":boiler," +
                         ":fuelBurning," +
-                        ":fuelStorage" +
+                        ":fuelStorage," +
                         ":standpipe," +
                         ":sprinkler," +
                         ":fireAlarm," +
@@ -268,12 +269,12 @@ public class BatchConfig {
                         ":applicantProfessionalTitle," +
                         ":applicantLicenseNumber," +
                         ":professionalCert," +
-                        ":preFilingDate," +
-                        ":paidDate," +
-                        ":fullyPaidDate," +
-                        ":assignedDate," +
-                        ":approvedDate," +
-                        ":fullyPermittedDate," +
+                        ":preFilingDt," +
+                        ":paidDt," +
+                        ":fullyPaidDt," +
+                        ":assignedDt," +
+                        ":approvedDt," +
+                        ":fullyPermittedDt," +
                         ":initialCost," +
                         ":totalEstimatedFee," +
                         ":feeStatus," +
@@ -305,11 +306,11 @@ public class BatchConfig {
                         ":ownerHouseNumber," +
                         ":ownerHouseStreetName," +
                         ":city," +
-                        ":state," +
+                        ":resSt," +
                         ":zip," +
                         ":ownerPhone," +
                         ":jobDescription," +
-                        ":dobRunDate," +
+                        ":dobRunDt" +
                 ")");
         writer.setDataSource(dataSource);
         return writer;
@@ -319,11 +320,11 @@ public class BatchConfig {
         return builder.get("readFile").flow(read).end().build();
     }
 
-    @Bean public Step read(StepBuilderFactory builder, ItemReader reader, ItemWriter writer/*,
-                           ItemProcessor processor*/) {
+    @Bean public Step read(StepBuilderFactory builder, ItemReader reader, ItemWriter writer,
+                           ItemProcessor processor) {
         return builder.get("read")
-                .chunk(1).reader(reader)
-//                .processor(processor)
+                .chunk(10).reader(reader)
+                .processor(processor)
                 .writer(writer).build();
     }
 
